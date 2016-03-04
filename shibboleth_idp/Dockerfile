@@ -5,17 +5,25 @@ MAINTAINER Mark McCahill "mark.mccahill@duke.edu"
 USER root
 
 RUN yum -y update && \
-    yum -y install wget \
+    yum -y install wget unzip && \
     yum clean all
+
+RUN cd /opt
 
 #
 # JDK
 #
 RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
-         http://download.oracle.com/otn-pub/java/jdk/8u73-b02/jdk-8u73-linux-x64.rpm
+         http://download.oracle.com/otn-pub/java/jdk/8u73-b02/jdk-8u73-linux-x64.rpm ; \
+    rpm -ivh jdk-8*  
 
-RUN  rpm -ivh jdk-8*  ; \
-     rm jdk-8*
+
+#
+# Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 8 Download
+#
+RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
+         http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip
+
 
 #
 # Jetty
