@@ -5,7 +5,23 @@ MAINTAINER Mark McCahill "mark.mccahill@duke.edu"
 USER root
 
 RUN yum -y update && \
+    yum -y install wget \
     yum clean all
+
+#
+# JDK
+#
+RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
+         http://download.oracle.com/otn-pub/java/jdk/8u73-b02/jdk-8u73-linux-x64.rpm
+
+RUN  rpm -ivh jdk-8*  ; \
+     rm jdk-8*
+
+#
+# Jetty
+#
+RUN wget http://download.eclipse.org/jetty/stable-9/dist/jetty-distribution-9.3.7.v20160115.tar.gz 
+
 
 #
 # things we need assuming we end up running systemd
