@@ -1,62 +1,126 @@
-
 FROM   centos:7
 MAINTAINER Mark McCahill "mark.mccahill@duke.edu"
 
 USER root
 
-RUN yum -y update && \
-    yum -y install wget unzip && \
+RUN yum -y update &&  \
+    yum -y install \
+             wget \
+             unzip; \
     yum clean all
 
 RUN cd /opt
 
 #
-# JDK
+################## start Oracle JDK ###################### 
 #
-RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
-         http://download.oracle.com/otn-pub/java/jdk/8u73-b02/jdk-8u73-linux-x64.tar.gz ; \
-    mkdir /usr/local/java ; \
-    cd /usr/local/java ; \
-    tar -xzf /jdk-8u73-linux-x64.tar.gz ; \ 
-    rm /jdk-8u73-linux-x64.tar.gz ; \
-    ln -s /usr/local/java/jdk1.8.0_73 /usr/local/java/jdk 
+#RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
+#         http://download.oracle.com/otn-pub/java/jdk/8u73-b02/jdk-8u73-linux-x64.tar.gz ; \
+#    mkdir /usr/local/java ; \
+#    cd /usr/local/java ; \
+#    tar -xzf /jdk-8u73-linux-x64.tar.gz ; \ 
+#    rm /jdk-8u73-linux-x64.tar.gz ; \
+#    ln -s /usr/local/java/jdk1.8.0_73 /usr/local/java/jdk 
+#
+#RUN echo 'export PATH="$PATH:/usr/local/java/jdk/bin"' > /etc/profile.d/java.sh ; \
+#    echo 'export JAVA_HOME=/usr/local/java/jdk' >> /etc/profile.d/java.sh
+#
+### Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 8 Download
+#
+#$RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
+#         http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip
+#RUN cd /usr/local/java/jdk/jre/lib/security ; \
+#    mv /jce_policy-8.zip /usr/local/java/jdk/jre/lib/security ; \
+#    unzip jce_policy-8.zip ; \
+#    mv UnlimitedJCEPolicyJDK8/* ./ ; \
+#    rmdir UnlimitedJCEPolicyJDK8 ; \
+#    rm jce_policy-8.zip 
+#    
+################## end Oracle JDK ################## 
 
-RUN echo 'export PATH="$PATH:/usr/local/java/jdk/bin"' > /etc/profile.d/java.sh ; \
-    echo 'export JAVA_HOME=/usr/local/java/jdk' >> /etc/profile.d/java.sh
+# let's roll with OpenJDK
+#
+RUN yum -y update &&  \
+    yum -y install \ 
+             java-1.8.0-openjdk.x86_64  \
+             java-1.8.0-openjdk-devel.x86_64 ;  \
+    mkdir /usr/java ; \
+    ln -s /etc/alternatives/java_sdk_1.8.0_openjdk /usr/java/jdk1.8.0_77 ; \
+    ln -s /usr/java/jdk1.8.0_77 /usr/java/latest ; \
+    yum clean all
 
 #
-# Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 8 Download
+# tomcat
 #
-RUN wget --no-cookies --header "Cookie: oraclelicense=accept-securebackup-cookie;" \
-         http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip
-RUN cd /usr/local/java/jdk/jre/lib/security ; \
-    mv /jce_policy-8.zip /usr/local/java/jdk/jre/lib/security ; \
-    unzip jce_policy-8.zip ; \
-    mv UnlimitedJCEPolicyJDK8/* ./ ; \
-    rmdir UnlimitedJCEPolicyJDK8 ; \
-    rm jce_policy-8.zip 
-     
-#
-# Jetty
-#
-RUN wget http://download.eclipse.org/jetty/stable-9/dist/jetty-distribution-9.3.7.v20160115.tar.gz 
-RUN tar -xvzf jetty-distribution-9.3.7.v20160115.tar.gz -C /opt/ ; \
-    mv /opt/jetty-distribution-9.3.7.v20160115 /opt/jetty ; \
-    useradd -m jetty ; \
-    chown -R jetty:jetty /opt/jetty/ 
-RUN echo 'JAVA=/usr/local/java/jdk/bin/java' > /etc/default/jetty ; \
-    echo 'JETTY_HOME=/opt/jetty' >> /etc/default/jetty ; \
-    echo 'JETTY_USER=jetty' >> /etc/default/jetty ; \
-    echo 'JETTY_PORT=8080' >> /etc/default/jetty ; \
-    echo 'JETTY_LOGS=/opt/jetty/logs/' >> /etc/default/jetty
- 
+
+RUN yum -y update &&  \
+    yum -y install \
+             tomcat ; \
+    yum clean all
 
 #
 # Shibboleth IDP
 #
-RUN wget http://shibboleth.net/downloads/identity-provider/latest/shibboleth-identity-provider-3.2.1.tar.gz
-RUN tar -xvzf shibboleth-identity-provider-3.2.1.tar.gz
+RUN set -e ; \
+    mkdir /usr/local/dist ; \
+    cd /usr/local/dist ; \
+    wget http://shibboleth.net/downloads/identity-provider/latest/shibboleth-identity-provider-3.2.1.tar.gz ; \
+    wget http://shibboleth.net/downloads/identity-provider/latest/shibboleth-identity-provider-3.2.1.tar.gz.asc ; \
+    wget http://shibboleth.net/downloads/identity-provider/latest/shibboleth-identity-provider-3.2.1.tar.gz.sha256 ; \
+    wget https://shibboleth.net/downloads/PGP_KEYS ; \
+    gpg --import PGP_KEYS ; \
+    sha256sum --check shibboleth-identity-provider-3.2.1.tar.gz.sha256 ; \
+    gpg shibboleth-identity-provider-3.2.1.tar.gz.asc ; \
+    tar -xvzf shibboleth-identity-provider-3.2.1.tar.gz
 
+RUN yum -y update &&  \
+    yum -y install \
+             openssl ; \
+    yum clean all
+
+ADD ./configs /build-configs
+
+#
+# Install shibboleth IDP
+#
+RUN export JAVA_HOME=/usr/java/latest ; \
+    export KEYPASS=changeit ; \
+    export SEALPASS=changeit ; \
+    export SCOPE=testbed.tier.internet2.edu ; \
+    export HOST=idp.$SCOPE ; \
+    export ENTITYID=https://$HOST/idp/shibboleth ;  \
+    cd /usr/local/dist ;  \
+    export DIST=/usr/local/dist/shibboleth-identity-provider-3.2.1 ; \
+    export IDP_HOME=/opt/shibboleth-idp ; \
+    echo \# Properties controlling the installation of the Shibboleth IdP>$DIST/idp.install.properties ; \
+    export SFILE=$DIST/idp.merge.properties ; \
+    echo idp.scope=$SCOPE>>$SFILE ; \
+    echo idp.entityID=$ENTITYID>>$SFILE ; \
+    echo idp.sealer.storePassword=$SEALPASS>>$SFILE ; \
+    echo idp.sealer.keyPassword=$SEALPASS>>$SFILE ; \
+    $DIST/bin/install.sh \
+       -Didp.property.file=idp.install.properties \
+       -Didp.merge.properties=idp.merge.properties \
+       -Didp.src.dir=$DIST \
+       -Didp.target.dir=$IDP_HOME \
+       -Didp.scope=$SCOPE \
+       -Didp.host.name=$HOST \
+       -Didp.keystore.password=$KEYPASS \
+       -Didp.sealer.password=$SEALPASS \
+       -Didp.noprompt=true 
+
+RUN IDP_HOME=/opt/shibboleth-idp ; \
+    chgrp -R tomcat $IDP_HOME ; \
+    chmod -R g+r $IDP_HOME ; \
+    chmod g+w $IDP_HOME/logs ; \
+    chmod g+s $IDP_HOME/logs
+
+# Install Java Server Tag Library
+RUN wget https://build.shibboleth.net/nexus/service/local/repositories/thirdparty/content/javax/servlet/jstl/1.2/jstl-1.2.jar \
+          -P /usr/share/tomcat/lib/
+
+# Deploy to Tomcat
+RUN cp /build-configs/idp.xml /etc/tomcat/Catalina/localhost/
 
 #
 # things we need assuming we end up running systemd
@@ -79,6 +143,7 @@ VOLUME [ "/sys/fs/cgroup" ]
 #RUN yum -y install httpd; \ 
 #    yum clean all; \
 #    systemctl enable httpd.service
-#EXPOSE 80
-CMD ["/usr/sbin/init"]
+RUN systemctl enable tomcat.service
 
+EXPOSE 443 8443 80 8080
+CMD ["/usr/sbin/init"]

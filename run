@@ -3,4 +3,4 @@
 #
 sudo docker run -ti -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
          -v /tmp/$(mktemp -d):/run  \
-         shibboleth-idp
+         -p 0.0.0.0:8080:8080  shibboleth-idp
