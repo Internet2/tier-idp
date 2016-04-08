@@ -7,18 +7,18 @@ are docker scripts for both OpenJDK and ther Oracle JDK.
 Make a copy of your favorite and name it Dockerfile, then run the build
 script:
 
-'''
+```
 cp Dockerfile.OpenJDK Dockerfile
 ./build
-'''
+```
 
 NOTE: Oracle wants you to agree to their license terms here for the
 JDK and the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files 8 
 found on these two pages:
-'''
+```
 http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
-'''
+```
 so go do that before you even **_think_** of building the OracleSDK version.
 
 ### How to verify the IDP from inside the container
