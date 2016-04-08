@@ -60,7 +60,6 @@ RUN mkdir /usr/local/java; \
 #
 # tomcat
 #
-
 RUN yum -y update &&  \
     yum -y install \
              tomcat ; \
@@ -123,11 +122,15 @@ RUN IDP_HOME=/opt/shibboleth-idp ; \
     chmod g+w $IDP_HOME/logs ; \
     chmod g+s $IDP_HOME/logs
 
+#
 # Install Java Server Tag Library
+#
 RUN wget https://build.shibboleth.net/nexus/service/local/repositories/thirdparty/content/javax/servlet/jstl/1.2/jstl-1.2.jar \
           -P /usr/share/tomcat/lib/
 
+#
 # Deploy to Tomcat
+#
 RUN cp /build-configs/idp.xml /etc/tomcat/Catalina/localhost/
 
 #
