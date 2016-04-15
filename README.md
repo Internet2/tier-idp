@@ -1,3 +1,5 @@
+# Shibboleth IDP
+
 ## Building
 
 Depending on your religious beliefs, you may favor the Oracle JDK or the
